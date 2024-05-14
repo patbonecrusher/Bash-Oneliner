@@ -1,7 +1,7 @@
 # Bash-Oneliner
 I am glad that you are here! I was working on bioinformatics a few years ago and was amazed by those single-word bash commands which are much faster than my dull scripts, time saved through learning command-line shortcuts and scripting. Recent years I am working on cloud computing and I keep recording those useful commands here. Not all of them is oneliner, but i put effort on making them brief and swift. I am mainly using Ubuntu, Amazon Linux, RedHat, Linux Mint, Mac and CentOS, sorry if the commands don't work on your system.
 
-This blog will focus on simple bash commands for parsing data and Linux system maintenance that i acquired from work and LPIC exam. I apologize that there are no detailed citation for all the commands, but they are probably from dear Google and Stackoverflow.
+This blog will focus on simple bash commands for parsing data and Linux system maintenance that i acquired from work and LPIC exam. I apologize that there are no detailed citation for all the commands, but they are probably from dear Google and Stack Overflow.
 
 English and bash are not my first language, please correct me anytime, thank you.
 If you know other cool commands, please teach me!
@@ -12,13 +12,13 @@ Here's a more stylish version of [Bash-Oneliner](https://onceupon.github.io/Bash
 
 - [Terminal Tricks](#terminal-tricks)
 - [Variable](#variable)
+- [Math](#math)
 - [Grep](#grep)
 - [Sed](#sed)
 - [Awk](#awk)
 - [Xargs](#xargs)
 - [Find](#find)
 - [Condition and Loop](#condition-and-loop)
-- [Math](#math)
 - [Time](#time)
 - [Download](#download)
 - [Random](#random)
@@ -33,22 +33,23 @@ Here's a more stylish version of [Bash-Oneliner](https://onceupon.github.io/Bash
 
 #####  Using Ctrl keys
 ```
+Ctrl + a : move to the beginning of line.
+Ctrl + d : if you've type something, Ctrl + d deletes the character under the cursor, else, it escapes the current shell.
+Ctrl + e : move to the end of line.
+Ctrl + k : delete all text from the cursor to the end of line.
+Ctrl + l : equivalent to clear.
 Ctrl + n : same as Down arrow.
 Ctrl + p : same as Up arrow.
+Ctrl + q : to resume output to terminal after Ctrl + s.
 Ctrl + r : begins a backward search through command history.(keep pressing Ctrl + r to move backward)
 Ctrl + s : to stop output to terminal.
-Ctrl + q : to resume output to terminal after Ctrl + s.
-Ctrl + a : move to the beginning of line.
-Ctrl + e : move to the end of line.
-Ctrl + d : if you've type something, Ctrl + d deletes the character under the cursor, else, it escapes the current shell.
-Ctrl + k : delete all text from the cursor to the end of line.
-Ctrl + x + backspace : delete all text from the beginning of line to the cursor.
 Ctrl + t : transpose the character before the cursor with the one under the cursor, press Esc + t to transposes the two words before the cursor.
-Ctrl + w : cut the word before the cursor; then Ctrl + y paste it
 Ctrl + u : cut the line before the cursor; then Ctrl + y paste it
-Ctrl + _ : undo typing.
-Ctrl + l : equivalent to clear.
+Ctrl + w : cut the word before the cursor; then Ctrl + y paste it
+Ctrl + x + backspace : delete all text from the beginning of line to the cursor.
 Ctrl + x + Ctrl + e : launch editor defined by $EDITOR to input your command. Useful for multi-line commands.
+Ctrl + z : stop current running process and keep it in background. You can use `fg` to continue the process in the foreground, or `bg` to continue the process in the background.
+Ctrl + _ : undo typing.
 ```
 ##### Change case
 ```bash
@@ -57,8 +58,9 @@ Esc + u
 Esc + l
 # converts text from cursor to the end of the word to lowercase.
 Esc + c
-# converts letter under the cursor to uppercase.
+# converts letter under the cursor to uppercase, rest of the word to lowercase.
 ```
+
 ##### Run history number (e.g. 53)
 ```bash
 !53
@@ -69,7 +71,6 @@ Esc + c
 !!
 # run the previous command using sudo
 sudo !!
-# of course you need to enter your password
 ```
 
 ##### Run last command and change some parameter using caret substitution (e.g. last command: echo 'aaa' -> rerun as: echo 'bbb')
@@ -98,16 +99,16 @@ sudo !!
 ##### Bash globbing
 ```bash
 # '*' serves as a "wild card" for filename expansion.
-/b?n/?at      #/bin/cat
-
-# '?' serves as a single-character "wild card" for filename expansion.
 /etc/pa*wd    #/etc/passwd
 
-# ‘[]’ serves to match the character from a range.
+# '?' serves as a single-character "wild card" for filename expansion.
+/b?n/?at      #/bin/cat
+
+# '[]' serves to match the character from a range.
 ls -l [a-z]*   #list all files with alphabet in its filename.
 
-# ‘{}’ can be used to match filenames with more than one patterns
-ls {*.sh,*.py}   #list all .sh and .py files
+# '{}' can be used to match filenames with more than one patterns
+ls *.{sh,py}   #list all .sh and .py files
 ```
 
 ##### Some handy environment variables
@@ -119,6 +120,7 @@ $?   :most recent foreground pipeline exit status.
 $-   :current options set for the shell.
 $$   :pid of the current shell (not subshell).
 $!   :is the PID of the most recent background command.
+$_   :last argument of the previously executed command, or the path of the bash script.
 
 $DESKTOP_SESSION     current display manager
 $EDITOR   preferred text editor.
@@ -130,14 +132,49 @@ $USER   current username
 $HOSTNAME   current hostname
 ```
 
+##### Using vi-mode in your shell
+```bash
+set -o vi
+# change bash shell to vi mode
+# then hit the Esc key to change to vi edit mode (when `set -o vi` is set)
+k
+# in vi edit mode - previous command
+j
+# in vi edit mode - next command
+0
+# in vi edit mode - beginning of the command
+R
+# in vi edit mode - replace current characters of command
+2w
+# in vi edit mode - next to 2nd word
+b
+# in vi edit mode - previous word
+i
+# in vi edit mode - go to insert mode
+v
+# in vi edit mode - edit current command in vi
+man 3 readline
+# man page for complete readline mapping
+```
+
 ## Variable
 [[back to top](#handy-bash-one-liners)]
 ##### Variable substitution within quotes
 ```bash
 # foo=bar
- echo "'$foo'"
-#'bar'
-# double/single quotes around single quotes make the inner single quotes expand variables
+echo $foo
+# bar
+echo "$foo"
+# bar
+# single quotes cause variables to not be expanded
+echo '$foo'
+# $foo
+# single quotes within double quotes will not cancel expansion and will be part of the output
+echo "'$foo'"
+# 'bar'
+# doubled single quotes act as if there are no quotes at all
+echo ''$foo''
+# bar
 ```
 ##### Get the length of variable
 ```bash
@@ -178,11 +215,13 @@ echo ${var[@]#0}
 ```bash
 {var//a/,}
 ```
+
+##### Grep lines with strings from a file (e.g. lines with 'stringA or 'stringB' or 'stringC')
 ```bash
 #with grep
- test="god the father"
- grep ${test// /\\\|} file.txt
- # turning the space into 'or' (\|) in grep
+test="stringA stringB stringC"
+grep ${test// /\\\|} file.txt
+# turning the space into 'or' (\|) in grep
 ```
 
 ##### To change the case of the string stored in the variable to lowercase (Parameter Expansion)
@@ -205,9 +244,9 @@ echo "$bar" # foo
 ```bash
 echo $(( 10 + 5 ))  #15
 x=1
-echo $(( x++ )) #1 , notice that it is still 1, since it's post-incremen
+echo $(( x++ )) #1 , notice that it is still 1, since it's post-increment
 echo $(( x++ )) #2
-echo $(( ++x )) #4 , notice that it is not 3 since it's pre-incremen
+echo $(( ++x )) #4 , notice that it is not 3 since it's pre-increment
 echo $(( x-- )) #4
 echo $(( x-- )) #3
 echo $(( --x )) #1
@@ -265,10 +304,10 @@ echo "var=5;--var"| bc
 #####  Type of grep
 ```bash
 grep = grep -G # Basic Regular Expression (BRE)
-fgrep = grep -F # fixed text, ignoring meta-charachetrs
+fgrep = grep -F # fixed text, ignoring meta-characters
 egrep = grep -E # Extended Regular Expression (ERE)
-pgrep = grep -P # Perl Compatible Regular Expressions (PCRE)
 rgrep = grep -r # recursive
+grep -P # Perl Compatible Regular Expressions (PCRE)
 ```
 
 #####  Grep and count number of empty lines
@@ -280,15 +319,15 @@ grep -c "^$"
 ```bash
 grep -o '[0-9]*'
 #or
-grep -oP '\d'
+grep -oP '\d*'
 ```
 #####  Grep integer with certain number of digits (e.g. 3)
 ```bash
-grep ‘[0-9]\{3\}’
+grep '[0-9]\{3\}'
 # or
-grep -E ‘[0-9]{3}’
+grep -E '[0-9]{3}'
 # or
-grep -P ‘\d{3}’
+grep -P '\d{3}'
 ```
 
 #####  Grep only IP address
@@ -395,14 +434,14 @@ grep 'A\|B\|C\|D'
 grep 'A.*B'
 ```
 
-##### Regex any singer character (e.g. ACB or AEB)
+##### Regex any single character (e.g. ACB or AEB)
 ```bash
 grep 'A.B'
 ```
 
 ##### Regex with or without a certain character (e.g. color or colour)
 ```bash
-grep ‘colou?r’
+grep 'colou\?r'
 ```
 
 ##### Grep all content of a fileA from fileB
@@ -511,7 +550,7 @@ sed -i '1s/^/[/' file
 
 ##### Add string at certain line number (e.g. add 'something' to line 1 and line 3)
 ```bash
-sed -e '1isomething -e '3isomething'
+sed -e '1isomething' -e '3isomething'
 ```
 
 ##### Add string to end of file (e.g. "]")
@@ -525,7 +564,7 @@ sed '$a\'
 
 ##### Add string to beginning of every line (e.g. 'bbo')
 ```bash
-sed -e 's/^/bbo/' file
+sed -e 's/^/bbo/' filename
 ```
 
 ##### Add string to end of each line (e.g. "}")
@@ -538,7 +577,14 @@ sed -e 's/$/\}\]/' filename
 sed 's/.\{4\}/&\n/g'
 ```
 
-##### Concatenate/combine/join files with a seperator and next line (e.g separate by ",")
+##### Add a line after the line that matches the pattern (e.g. add a new line with "world" after the line with "hello")
+```bash
+sed '/hello*/a world' filename
+# hello
+# world
+```
+
+##### Concatenate/combine/join files with a separator and next line (e.g separate by ",")
 ```bash
 sed -s '$a,' *.json > all.json
 ```
@@ -606,12 +652,12 @@ sed "s/$/\t$i/"
 # $i is the valuable you want to add
 
 # To add the filename to every last column of the file
-for i in $(ls);do sed -i "s/$/\t$i/" $i;done
+for i in $(ls); do sed -i "s/$/\t$i/" $i; done
 ```
 
 ##### Add extension of filename to last column
 ```bash
-for i in T000086_1.02.n T000086_1.02.p;do sed "s/$/\t${i/*./}/" $i;done >T000086_1.02.np
+for i in T000086_1.02.n T000086_1.02.p; do sed "s/$/\t${i/*./}/" $i; done >T000086_1.02.np
 ```
 
 ##### Remove newline\ nextline
@@ -775,7 +821,7 @@ awk '{printf("%s\t%s\n",NR,$0)}'
 
 ##### Break combine column data into rows
 ```bash
-# For example, seperate the following content:
+# For example, separate the following content:
 # David    cat,dog
 # into
 # David    cat
@@ -1044,7 +1090,7 @@ if [[ $age -gt 21 ]]; then echo -e "forever 21!!" ; fi
 ##### For loop
 ```bash
 # Echo the file name under the current directory
-for i in $(ls); do echo file $i;done
+for i in $(ls); do echo file $i; done
 #or
 for i in *; do echo file $i; done
 
@@ -1052,7 +1098,7 @@ for i in *; do echo file $i; done
 for dir in $(<myfile); do mkdir $dir; done
 
 # Press any key to continue each loop
-for i in $(cat tpc_stats_0925.log |grep failed|grep -o '\query\w\{1,2\}');do cat ${i}.log; read -rsp $'Press any key to continue...\n' -n1 key;done
+for i in $(cat tpc_stats_0925.log |grep failed|grep -o '\query\w\{1,2\}'); do cat ${i}.log; read -rsp $'Press any key to continue...\n' -n1 key; done
 
 # Print a file line by line when a key is pressed,
 oifs="$IFS"; IFS=$'\n'; for line in $(cat myfile); do ...; done
@@ -1062,21 +1108,21 @@ while read -r line; do ...; done <myfile
 for line in $(cat myfile); do echo $line; read -n1; done
 
 #Loop through an array
-for i in "${arrayName[@]}"; do echo $i;done
+for i in "${arrayName[@]}"; do echo $i; done
 
 ```
 
 ##### While loop,
 ```bash
 # Column subtraction of a file (e.g. a 3 columns file)
-while read a b c; do echo $(($c-$b));done < <(head filename)
+while read a b c; do echo $(($c-$b)); done < <(head filename)
 #there is a space between the two '<'s
 
 # Sum up column subtraction
 i=0; while read a b c; do ((i+=$c-$b)); echo $i; done < <(head filename)
 
 # Keep checking a running process (e.g. perl) and start another new process (e.g. python) immediately after it. (BETTER use the wait command! Ctrl+F 'wait')
-while [[ $(pidof perl) ]];do echo f;sleep 10;done && python timetorunpython.py
+while [[ $(pidof perl) ]]; do echo f; sleep 10; done && python timetorunpython.py
 ```
 
 ##### switch (case in bash)
@@ -1132,6 +1178,29 @@ date -d "Tue Mar 16 00:00:00 UTC 2021"  +%s
 date --date @1615852800
 # Tue Mar 16 00:00:00 UTC 2021
 
+```
+
+##### Print current time point for N days ago or N days after
+```bash
+# print current date first (for the following example)
+date +"%F %H:%M:%S"
+# 2023-03-11 16:17:09
+
+# print the time that is 1 day ago
+date -d"1 day ago" +"%F %H:%M:%S"
+# 2023-03-10 16:17:09
+
+# print the time that is 7 days ago
+date -d"7 days ago" +"%F %H:%M:%S"
+# 2023-03-04 16:17:09
+
+# print the time that is a week ago
+date -d"1 week ago" +"%F %H:%M:%S"
+# 2023-03-04 16:17:09
+
+# add 1 day to date
+date -d"-1 day ago" +"%F %H:%M:%S"
+# 2023-03-12 16:17:09
 ```
 
 ##### wait for random duration (e.g. sleep 1-5 second, like adding a jitter)
@@ -2040,11 +2109,6 @@ killall pulseaudio
 # then press Alt-F2 and type in pulseaudio
 ```
 
-##### When sound not working
-```bash
-killall pulseaudio
-```
-
 ##### List information about SCSI devices
 ```bash
 lsscsi
@@ -2059,7 +2123,7 @@ http://onceuponmine.blogspot.tw/2017/07/create-your-first-simple-daemon.html
 ##### Tutorial for using your gmail to send email
 http://onceuponmine.blogspot.tw/2017/10/setting-up-msmtprc-and-use-your-gmail.html
 
- ##### Using telnet to test open ports, test if you can connect to a port (e.g 53) of a server (e.g 192.168.2.106)
+##### Using telnet to test open ports, test if you can connect to a port (e.g 53) of a server (e.g 192.168.2.106)
 ```bash
 telnet 192.168.2.106 53
 ```
@@ -2419,7 +2483,7 @@ nc -vw5 google.com 22
 # From server A:
 $ sudo nc -l 80
 # then you can connect to the 80 port from another server (e.g. server B):
-# e.g. telent <server A IP address> 80
+# e.g. telnet <server A IP address> 80
 # then type something in server B
 # and you will see the result in server A!
 ```
@@ -2561,16 +2625,16 @@ sudo iptables –A INPUT –s <IP> -p tcp –dport 80 –j DROP
 ```bash
 # If file is not specified, the file /usr/share/dict/words is used.
 look phy|head -n 10
-# Phil
-# Philadelphia
-# Philadelphia's
-# Philby
-# Philby's
-# Philip
-# Philippe
-# Philippe's
-# Philippians
-# Philippine
+# phycic
+# Phyciodes
+# phycite
+# Phycitidae
+# phycitol
+# phyco-
+# phycochrom
+# phycochromaceae
+# phycochromaceous
+# phycochrome
 ```
 
 ##### Repeat printing string n times (e.g. print 'hello world' five times)
@@ -2625,7 +2689,41 @@ sdiff fileA fileB
 
 ##### Compare two files, strip trailing carriage return/ nextline (e.g. fileA, fileB)
 ```bash
- diff fileA fileB --strip-trailing-cr
+diff fileA fileB --strip-trailing-cr
+```
+
+##### Find common/differing lines
+```bash
+# having two sorted and uniqed files (for example after running `$ sort -uo fileA fileA` and same for fileB):
+# ------
+# fileA:
+# ------
+# joey
+# kitten
+# piglet
+# puppy
+# ------
+# fileB:
+# ------
+# calf
+# chick
+# joey
+# puppy
+#
+# Find lines in both files
+comm -12 fileA fileB
+# joey
+# puppy
+#
+# Find lines in fileB that are NOT in fileA
+comm -13 fileA fileB
+# calf
+# chick
+#
+# Find lines in fileA that are NOT in fileB
+comm -23 fileA fileB
+# kitten
+# piglet
 ```
 
 ##### Number a file (e.g. fileA)
@@ -2701,8 +2799,8 @@ echo {1,2}{1,2}
 ```bash
 set = {A,T,C,G}
 group= 5
-for ((i=0; i<$group; i++));do
-    repetition=$set$repetition;done
+for ((i=0; i<$group; i++)); do
+    repetition=$set$repetition; done
     bash -c "echo "$repetition""
 ```
 
@@ -2792,12 +2890,28 @@ var=$((var+1))
 cat filename|rev|cut -f1|rev
 ```
 
-##### Cat to a file
+##### Create or replace a file with contents
 ```bash
 cat >myfile
 let me add sth here
-exit by control + c
-^C
+# exit with ctrl+d
+
+# or using tee
+tee myfile
+let me add sth else here
+# exit with ctrl+d
+```
+
+##### Append to a file with contents
+```bash
+cat >>myfile
+let me add sth here
+# exit with ctrl+d
+
+# or using tee
+tee -a myfile
+let me add sth else here
+# exit with ctrl+d
 ```
 
 ##### Clear the contents of a file (e.g. filename)
@@ -2880,7 +2994,7 @@ tac filename
 
 ##### Reverse the result from `uniq -c`
 ```bash
-while read a b; do yes $b |head -n $a ;done <test.txt
+while read a b; do yes $b |head -n $a ; done <test.txt
 ```
 
 
@@ -3060,11 +3174,40 @@ rsync -av directory user@ip_address:/path/to/directory.bak
 # skip files that are newer on receiver (i prefer this one!)
 ```
 
+##### Create a temporary directory and `cd` into it
+```bash
+cd $(mktemp -d)
+# for example, this will create a temporary directory "/tmp/tmp.TivmPLUXFT"
+```
+
 ##### Make all directories at one time!
 ```bash
 mkdir -p project/{lib/ext,bin,src,doc/{html,info,pdf},demo/stat}
 # -p: make parent directory
-# this will create project/doc/html/; project/doc/info; project/lib/ext ,etc
+# this will create:
+# project/
+# project/bin/
+# project/demo/
+# project/demo/stat/
+# project/doc/
+# project/doc/html/
+# project/doc/info/
+# project/doc/pdf/
+# project/lib/
+# project/lib/ext/
+# project/src/
+#
+# project/
+# ├── bin
+# ├── demo
+# │   └── stat
+# ├── doc
+# │   ├── html
+# │   ├── info
+# │   └── pdf
+# ├── lib
+# │   └── ext
+# └── src
 ```
 
 ##### Run command only if another command returns zero exit status (well done)
@@ -3195,9 +3338,9 @@ fallocate -l 10G 10Gigfile
 
 ##### Create dummy file of certain size (e.g. 200mb)
 ```bash
-dd if=/dev/zero of=//dev/shm/200m bs=1024k count=200
+dd if=/dev/zero of=/dev/shm/200m bs=1024k count=200
 # or
-dd if=/dev/zero of=//dev/shm/200m bs=1M count=200
+dd if=/dev/zero of=/dev/shm/200m bs=1M count=200
 
 # Standard output:
 # 200+0 records in
@@ -3210,9 +3353,29 @@ dd if=/dev/zero of=//dev/shm/200m bs=1M count=200
 watch -n 1 wc -l filename
 ```
 
+##### Use Bash Strict Mode
+```bash
+# These options can make your code safer but, depending on how your pipeline is written, it might be too aggressive 
+# or it might not catch the errors that you are interested in
+
+# for reference see https://gist.github.com/mohanpedala/1e2ff5661761d3abd0385e8223e16425
+#               and https://mywiki.wooledge.org/BashPitfalls#set_-euo_pipefail
+
+set -o errexit      # exit immediately if a pipeline returns a non-zero status
+set -o errtrace     # trap ERR from shell functions, command substitutions, and commands from subshell
+set -o nounset      # treat unset variables as an error
+set -o pipefail     # pipe will exit with last non-zero status, if applicable
+set -Eue -o pipefail  # shorthand for above (pipefail has no short option)
+```
+
 ##### Print commands and their arguments when execute (e.g. echo `expr 10 + 20 `)
 ```bash
 set -x; echo `expr 10 + 20 `
+# or
+set -o xtrace; echo `expr 10 + 20 `
+
+# to turn it off..
+set +x
 ```
 
 ##### Print some meaningful sentences to you (install fortune first)
